@@ -1,14 +1,24 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict, constr, Field
 from typing import List, Optional, Dict
-from datetime import datetime
+from typing import Annotated
 
 
 
 class TodoCreate(BaseModel):
-    title: str
-    description: Optional[str]
+    title: Annotated[
+        str,
+        Field(..., min_length=1, max_length=100, example="Read a book")
+    ]
+    description: str | None = Field(None, example="Read 20 pages of Dune")
     completed: Optional[bool] = False
-    created_at: Optional[datetime]
+
+    class Config:
+        schema_extra = {
+            "example": {
+                "title": "Wash the dishes",
+                "description": "Wash all the dishes in the sink and else"
+            }
+        }
 
 
 class TodoUpdate(BaseModel):
@@ -22,3 +32,14 @@ class TodoResponse(BaseModel):
     title: str
     description: Optional[str] = None
     completed: Optional[bool] = False
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class PaginatedTodos(BaseModel):
+    total: int
+    skip: int
+    limit: int
+    items: List[TodoResponse]
+
+    model_config = {"from_attributes": True}  # Pydantic v2
