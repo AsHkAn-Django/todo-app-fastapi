@@ -1,9 +1,9 @@
-from pydantic import BaseModel, ConfigDict, constr, Field
+from pydantic import BaseModel, ConfigDict, EmailStr, Field
 from typing import List, Optional, Dict
 from typing import Annotated
 
 
-
+# ---------- Todo ----------
 class TodoCreate(BaseModel):
     title: Annotated[
         str,
@@ -43,3 +43,32 @@ class PaginatedTodos(BaseModel):
     items: List[TodoResponse]
 
     model_config = {"from_attributes": True}  # Pydantic v2
+
+
+# ---------- User ----------
+class UserCreate(BaseModel):
+    username: Annotated[
+        str,
+        Field(..., min_length=3, max_length=100, example="Killer94")
+    ]
+    email: EmailStr
+    password: Annotated[str, Field(min_length=6)]
+
+
+class UserOut(BaseModel):
+    id: int
+    username: str
+    email: EmailStr
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+# ---------- Token ----------
+class Token(BaseModel):
+    access_token: str
+    refresh_token: str
+    token_type: str = "bearer"
+
+
+class TokenPayload(BaseModel):
+    sub: str | None = None
